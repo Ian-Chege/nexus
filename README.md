@@ -39,6 +39,10 @@ sliders and even the Matplotlib plots.
 - **Kali Linux / Debian / Ubuntu** (and most distros) — CPU temps via
   `psutil.sensors_temperatures()` (coretemp / k10temp / cpu_thermal).
   NVIDIA GPUs via `nvidia-smi`.
+- **macOS 12+** (Intel & Apple Silicon) — runs from source with standard
+  Python; no installer or `.dmg` needed. macOS does not expose CPU
+  temperatures or NVIDIA telemetry to psutil, so those cards show `N/A` —
+  an OS limitation, not a bug.
 - Unsupported sensors never crash anything — they display **N/A** with an
   explanation.
 
@@ -73,6 +77,38 @@ Manual alternative:
 python3 -m pip install -r requirements.txt
 python3 main.py
 ```
+
+### macOS
+```bash
+# run (creates an isolated .venv and installs deps on first launch)
+chmod +x run_mac.sh
+./run_mac.sh
+```
+
+If Python is missing, install it from <https://www.python.org/downloads/>
+(the installer bundles Tk). Homebrew users: `brew install python-tk`.
+
+Manual alternative:
+```bash
+python3 -m pip install -r requirements.txt
+python3 main.py
+```
+
+<details>
+<summary><b>Optional: package a real Mac <code>.app</code> / <code>.dmg</code></b> (must be done ON a Mac)</summary>
+
+```bash
+python3 -m pip install pyinstaller
+pyinstaller --windowed --collect-all customtkinter \
+    --name "NEXUS System Monitor" main.py
+# the bundle appears at dist/NEXUS System Monitor.app
+
+# wrap it into a .dmg if you really want one:
+hdiutil create -volname "NEXUS System Monitor" \
+    -srcfolder "dist/NEXUS System Monitor.app" \
+    -ov -format UDZO "NEXUS-System-Monitor.dmg"
+```
+</details>
 
 ### Command-line options
 ```
