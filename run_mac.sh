@@ -6,20 +6,25 @@
 set -u
 cd "$(dirname "$0")"
 
-PY=python3
-if ! command -v "$PY" >/dev/null 2>&1; then
-    echo "[X] python3 not found.  Install Python 3.9+ from:"
-    echo "    https://www.python.org/downloads/"
-    echo "    (or with Homebrew:  brew install python-tk)"
-    exit 1
-fi
+# CustomTkinter needs Tk 8.6+.  Apple's /usr/bin/python3 ships Tk 8.5,
+# which opens a blank window on recent macOS, so prefer Homebrew/python.org.
+PY=""
+# Homebrew does not always link a plain `python3`, so also look in each keg.
+for c in /opt/homebrew/bin/python3 /opt/homebrew/opt/python@3*/libexec/bin/python3 \
+         /usr/local/bin/python3 /usr/local/opt/python@3*/libexec/bin/python3 \
+         /Library/Frameworks/Python.framework/Versions/Current/bin/python3 python3; do
+    if command -v "$c" >/dev/null 2>&1 &&
+       "$c" -c "import sys, tkinter; sys.exit(tkinter.TkVersion < 8.6)" >/dev/null 2>&1; then
+        PY="$c"
+        break
+    fi
+done
 
-# CustomTkinter needs the Tk GUI toolkit
-# (python.org installers bundle it; Homebrew needs python-tk)
-if ! "$PY" -c "import tkinter" >/dev/null 2>&1; then
-    echo "[X] The Tk toolkit is missing."
-    echo "    If you installed Python via Homebrew:  brew install python-tk"
-    echo "    Otherwise reinstall Python from https://www.python.org/downloads/"
+if [ -z "$PY" ]; then
+    echo "[X] No Python 3.9+ with Tk 8.6 or newer was found."
+    echo "    (Apple's built-in python3 has Tk 8.5, which shows a blank window.)"
+    echo "    Homebrew:  brew install python python-tk"
+    echo "    Or install Python from https://www.python.org/downloads/"
     exit 1
 fi
 

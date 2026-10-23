@@ -87,6 +87,8 @@ chmod +x run_mac.sh
 
 If Python is missing, install it from <https://www.python.org/downloads/>
 (the installer bundles Tk). Homebrew users: `brew install python-tk`.
+Apple's built-in `/usr/bin/python3` ships Tk 8.5, which opens a **blank
+window** — `run_mac.sh` skips it and picks a Homebrew/python.org Python instead.
 
 Manual alternative:
 ```bash
